@@ -1,35 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect } from "react";
+import { useCustomSWR } from "./hooks/useCustomSWR";
+import {
+  TRequestCalender,
+  TRequestDoa,
+  TRequestSholat,
+  TResponse,
+  TResponseCalender,
+  TResponseDoa,
+  TResponseSholat,
+} from "./types";
+import { getDateAPI } from "./utils/getDate";
+import Carousel from "./components/carousel";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const ayat = useCustomSWR(`quran/ayat/acak`);
+  const doa = useCustomSWR<TResponse<TRequestDoa, TResponseDoa>>(`doa/acak`);
+
+  const schedule = useCustomSWR<TResponse<TRequestSholat, TResponseSholat>>(
+    `sholat/jadwal/1301/${getDateAPI()}`
+  );
+
+  const calenderHijrah =
+    useCustomSWR<TResponse<TRequestCalender, TResponseCalender>>(
+      `cal/hijr/?adj=-1`
+    );
+
+  useEffect(() => {
+    console.log(schedule.data);
+  }, []);
+
+  if (schedule.data) {
+    console.log(schedule.data.data);
+  }
+
+  console.log(doa.data?.data);
+  console.log(calenderHijrah.data?.data);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>TESSSSSSSSSS</h1>
+      {schedule.data && <div>{schedule.data.data.jadwal.dzuhur}</div>}
+      <Carousel />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
